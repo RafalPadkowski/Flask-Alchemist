@@ -1,0 +1,16 @@
+# Byte-compiled
+__pycache__/
+
+# Distribution / packaging
+dist/
+
+# Unit test / coverage reports
+.coverage
+
+# Environments
+.venv
+
+# Editors
+.editorconfig
+.flake8
+
