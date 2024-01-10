@@ -1,8 +1,9 @@
 [tool.poetry]
 name = "Flask-Alchemist"
-version = "0.1.0"
+version = "0.1.1"
 description = "Flask extension for working with SQLAlchemy"
 authors = ["Rafal Padkowski <rafaelp@poczta.onet.pl>"]
+license = "MIT"
 readme = "README.md"
 packages = [{ include = "flask_alchemist", from = "src" }]
 
