@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "Flask-Alchemist"
 version = "0.1.1"
-description = "Flask extension for working with SQLAlchemy"
+description = "Flask extension for working with SQLAlchemy and Alembic"
 authors = ["Rafal Padkowski <rafaelp@poczta.onet.pl>"]
 license = "MIT"
 readme = "README.md"
@@ -10,6 +10,7 @@ packages = [{ include = "flask_alchemist", from = "src" }]
 [tool.poetry.dependencies]
 python = ">=3.10"
 sqlalchemy = ">=2.0.25"
+alembic = ">=1.13.1"
 
 
 [build-system]
