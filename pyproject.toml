@@ -9,9 +9,9 @@ packages = [{ include = "flask_alchemist", from = "src" }]
 
 [tool.poetry.dependencies]
 python = ">=3.10"
+flask = ">=3.0.1"
 sqlalchemy = ">=2.0.25"
 alembic = ">=1.13.1"
-
 
 [build-system]
 requires = ["poetry-core"]

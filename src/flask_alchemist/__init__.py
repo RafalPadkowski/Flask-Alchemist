@@ -1,7 +1,9 @@
+from math import ceil
 from pprint import pprint
 
 import sqlalchemy as sa
 import sqlalchemy.orm as so
+from flask import Blueprint, abort, request
 
 
 class Model(so.DeclarativeBase):
@@ -26,6 +28,9 @@ class Alchemist:
         self.Model = Model
         self.Session = so.sessionmaker()
 
+        self.pagination_per_page = None
+        self.Pagination = None
+
         if app is not None:
             self.init_app(app)
 
@@ -33,6 +38,112 @@ class Alchemist:
         self.Session.configure(
             bind=sa.create_engine(url=app.config["DATABASE_URL"], echo=False)
         )
+
+        self.pagination_per_page = app.config.get("PAGINATION_PER_PAGE", 10)
+        self.Pagination = self.get_pagination()
+
+        blueprint = Blueprint(
+            "db",
+            __name__,
+            template_folder="templates/"
+            + app.config.get("TEMPLATE_MODE", "bootstrap5"),
+        )
+
+        app.register_blueprint(blueprint)
+
+    def get_pagination(self):
+        db_self = self
+
+        class Pagination:
+            def __init__(self, query):
+                try:
+                    self.page = int(request.args.get("page", 1))
+                except ValueError:
+                    abort(404)
+
+                self.per_page = db_self.pagination_per_page
+
+                q_count = sa.select(sa.func.count()).select_from(query)
+
+                with db_self.Session() as db_session:
+                    self.total = db_session.scalar(q_count)
+
+                self.pages = ceil(self.total / self.per_page)
+
+                if self.pages:
+                    if not 1 <= self.page <= self.pages:
+                        abort(404)
+
+                    offset = (self.page - 1) * self.per_page
+
+                    with db_self.Session() as db_session:
+                        self.items = db_session.scalars(
+                            query.limit(self.per_page).offset(offset)
+                        ).all()
+
+                    self.first = offset + 1
+
+                    if self.page != self.pages:
+                        self.last = offset + self.per_page
+                    else:
+                        self.last = self.total
+                else:
+                    if self.page != 1:
+                        abort(404)
+
+                    self.items = []
+                    self.first = self.last = 0
+
+                self.prev_num = self.page - 1
+                self.next_num = self.page + 1
+
+            @property
+            def has_prev(self):
+                return self.prev_num >= 1
+
+            @property
+            def has_next(self):
+                return self.next_num <= self.pages
+
+            def __iter__(self):
+                yield from self.items
+
+            def iter_pages(self):
+                left_edge = 2
+                left_current = 2
+                right_current = 4
+                right_edge = 2
+
+                pages_end = self.pages + 1
+
+                if pages_end == 1:
+                    return
+
+                left_end = min(1 + left_edge, pages_end)
+                yield from range(1, left_end)
+
+                if left_end == pages_end:
+                    return
+
+                mid_start = max(left_end, self.page - left_current)
+                mid_end = min(self.page + right_current + 1, pages_end)
+
+                if mid_start - left_end > 0:
+                    yield None
+
+                yield from range(mid_start, mid_end)
+
+                if mid_end == pages_end:
+                    return
+
+                right_start = max(mid_end, pages_end - right_edge)
+
+                if right_start - mid_end > 0:
+                    yield None
+
+                yield from range(right_start, pages_end)
+
+        return Pagination
 
     def __getattr__(self, name):
         for mod in (sa, so):
