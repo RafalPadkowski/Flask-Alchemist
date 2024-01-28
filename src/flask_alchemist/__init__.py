@@ -115,31 +115,43 @@ class Alchemist:
                 on_edges = 2
                 on_each_side = 3
 
-                pages_end = self.pages + 1
+                left_begin = 1
+                left_end = on_edges
 
-                left_end = min(1 + on_edges, pages_end)
-                yield from range(1, left_end)
+                for i in range(left_begin, left_end + 1):
+                    yield i
+                    if i >= self.pages:
+                        return
 
-                if left_end == pages_end:
-                    return
+                left_end += 1
 
-                mid_start = max(left_end, self.page - on_each_side)
-                mid_end = min(self.page + on_each_side + 1, pages_end)
+                mid_begin = self.page - on_each_side
+                mid_end = self.page + on_each_side
 
-                if mid_start - left_end > 0:
+                if mid_begin > left_end:
                     yield None
+                else:
+                    mid_begin = left_end
 
-                yield from range(mid_start, mid_end)
+                for i in range(mid_begin, mid_end + 1):
+                    yield i
+                    if i >= self.pages:
+                        return
 
-                if mid_end == pages_end:
-                    return
+                mid_end += 1
 
-                right_start = max(mid_end, pages_end - on_edges)
+                right_begin = self.pages - on_edges + 1
+                right_end = self.pages
 
-                if right_start - mid_end > 0:
+                if right_begin > mid_end:
                     yield None
+                else:
+                    right_begin = mid_end
 
-                yield from range(right_start, pages_end)
+                for i in range(right_begin, right_end + 1):
+                    yield i
+                    if i >= self.pages:
+                        return
 
         return Pagination
 
