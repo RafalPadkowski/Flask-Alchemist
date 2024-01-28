@@ -109,24 +109,22 @@ class Alchemist:
                 yield from self.items
 
             def iter_pages(self):
-                left_edge = 2
-                left_current = 2
-                right_current = 4
-                right_edge = 2
+                on_edges = 2
+                on_each_side = 3
 
                 pages_end = self.pages + 1
 
                 if pages_end == 1:
                     return
 
-                left_end = min(1 + left_edge, pages_end)
+                left_end = min(1 + on_edges, pages_end)
                 yield from range(1, left_end)
 
                 if left_end == pages_end:
                     return
 
-                mid_start = max(left_end, self.page - left_current)
-                mid_end = min(self.page + right_current + 1, pages_end)
+                mid_start = max(left_end, self.page - on_each_side)
+                mid_end = min(self.page + on_each_side + 1, pages_end)
 
                 if mid_start - left_end > 0:
                     yield None
@@ -136,7 +134,7 @@ class Alchemist:
                 if mid_end == pages_end:
                     return
 
-                right_start = max(mid_end, pages_end - right_edge)
+                right_start = max(mid_end, pages_end - on_edges)
 
                 if right_start - mid_end > 0:
                     yield None
