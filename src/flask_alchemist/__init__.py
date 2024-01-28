@@ -109,13 +109,13 @@ class Alchemist:
                 yield from self.items
 
             def iter_pages(self):
+                if not self.pages:
+                    return
+
                 on_edges = 2
                 on_each_side = 3
 
                 pages_end = self.pages + 1
-
-                if pages_end == 1:
-                    return
 
                 left_end = min(1 + on_edges, pages_end)
                 yield from range(1, left_end)
