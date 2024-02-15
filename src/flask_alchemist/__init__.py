@@ -3,7 +3,7 @@ from pprint import pprint
 
 import sqlalchemy as sa
 import sqlalchemy.orm as so
-from flask import Blueprint, abort, request
+from flask import abort, request
 
 
 class Model(so.DeclarativeBase):
@@ -41,15 +41,6 @@ class Alchemist:
 
         self.pagination_per_page = app.config.get("PAGINATION_PER_PAGE", 10)
         self.Pagination = self.get_pagination()
-
-        blueprint = Blueprint(
-            "db",
-            __name__,
-            template_folder="templates/"
-            + app.config.get("TEMPLATE_MODE", "bootstrap5"),
-        )
-
-        app.register_blueprint(blueprint)
 
     def get_pagination(self):
         db_self = self
