@@ -10,7 +10,7 @@ on demand with a context manager. The advantage is that when the Flask applicati
 There is also a Model class with modified MetaData configuration which tells SQLAlchemy how to name indexes and constraints in a database.
 You can subclass it to define your own model classes.
 
-The Model class provides also show_column method to display information about columns defined in a model (it helps when you want to create 
+The Model class provides also show_column method to display information about columns defined in a model (it helps when you want to create
 database objects in the Flask shell).
 
 ## Installation
@@ -78,6 +78,8 @@ Column('active', Boolean(), table=<users>, nullable=False, default=ScalarElement
 
 Alchemist object can be used as a proxy for any attribute of the SQLAlchemy Core and the SQLAlchemy ORM.
 For example when making SQL queries you can use db.select instead of importing this from SQLAlchemy.
+
+There is also a Pagination class for paging query results.
 
 
 ## License
