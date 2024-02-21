@@ -1,8 +1,8 @@
 # Flask-Alchemist
 
-Flask extension for working with SQLAlchemy.
+Flask extension for working with SQLAlchemy and Alembic.
 
-It can be used as an alternative for Flask-SQLAlchemy.
+It can be used as an alternative for Flask-SQLAlchemy and Flask-Migrate.
 
 Instead of the scoped session tied to a thread you can instantiate database session
 on demand with a context manager. The advantage is that when the Flask application handles a request you can precisely control when the session starts and ends.
@@ -79,7 +79,22 @@ Column('active', Boolean(), table=<users>, nullable=False, default=ScalarElement
 Alchemist object can be used as a proxy for any attribute of the SQLAlchemy Core and the SQLAlchemy ORM.
 For example when making SQL queries you can use db.select instead of importing this from SQLAlchemy.
 
-There is also a Pagination class for paging query results.
+There is also a Pagination class for paging query results (similar to Flask-SQLAlchemy).
+
+There are couple commands to work with Alembic:
+- flask db init
+
+  create a migration repository and configure the environment
+
+- flask db migrate
+
+  create a migration script
+
+- flask db upgrade
+
+  execute the script
+
+The app package should contain models.py file.
 
 
 ## License

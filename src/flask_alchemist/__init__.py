@@ -1,8 +1,13 @@
+import fileinput
+import pathlib
 from math import ceil
 from pprint import pprint
 
+import click
 import sqlalchemy as sa
 import sqlalchemy.orm as so
+from alembic import command as alembic_command
+from alembic.config import Config
 from flask import abort, request
 
 
@@ -41,6 +46,61 @@ class Alchemist:
 
         self.pagination_per_page = app.config.get("PAGINATION_PER_PAGE", 10)
         self.Pagination = self.get_pagination()
+
+        @app.cli.command("db")
+        @click.argument("command")
+        def db_command(command):
+            """Possible commands:
+
+            \b
+            init - initialize migrations
+            migrate - create a new migration script
+            upgrade - upgrade database
+
+            """
+
+            alembic_cfg = Config("alembic.ini")
+
+            match command:
+                case "init":
+                    alembic_command.init(alembic_cfg, "migrations")
+
+                    backup_file_path = (
+                        pathlib.Path("migrations").absolute() / "env.py.bak"
+                    )
+                    print(f"  Creating backup file '{backup_file_path}' ...", end="  ")
+
+                    with fileinput.FileInput(
+                        "migrations/env.py", inplace=True, backup=".bak"
+                    ) as f:
+                        line = f.readline()
+                        print("from flask_alchemist import Model", end="\n")
+                        print("import app.models", end="\n")
+                        print("from instance.config import DATABASE_URL", end="\n")
+                        print(line, end="")
+
+                        for line in f:
+                            if "target_metadata = None" in line:
+                                print(line.rstrip().replace("None", "Model.metadata"))
+                                print(
+                                    "config.set_main_option"
+                                    '("sqlalchemy.url", DATABASE_URL)'
+                                )
+                            elif (
+                                "connection=connection, target_metadata=target_metadata"
+                                in line
+                            ):
+                                print(line.rstrip() + ", render_as_batch=True")
+                            else:
+                                print(line, end="")
+
+                    print("done")
+
+                case "migrate":
+                    alembic_command.revision(alembic_cfg, autogenerate=True)
+
+                case "upgrade":
+                    alembic_command.upgrade(alembic_cfg, "head")
 
     def get_pagination(self):
         db_self = self
